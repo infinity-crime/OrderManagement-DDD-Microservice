@@ -13,6 +13,7 @@ namespace OrderManagement.Domain.Entities
         public Guid Id { get; private set; }
         public Guid CustomerId { get; private set; }
         public string Status { get; private set; }
+        public DateTime CreatedAt { get; private set; }
         public decimal TotalAmount { get; private set; }
         public string Country { get; private set; }
         public string City { get; private set; }
@@ -28,10 +29,11 @@ namespace OrderManagement.Domain.Entities
         // Private constructor that excludes creation of empty object in the database (for EF Core)
         private Order() { } 
 
-        public Order(Guid customerId, ShippingAddress address)
+        public Order(Guid customerId, ShippingAddress address, DateTime createdAt)
         {
             Id = Guid.NewGuid();
             CustomerId = customerId;
+            CreatedAt = createdAt;
             Country = address.Country;
             City = address.City;
             Street = address.Street;
@@ -41,9 +43,30 @@ namespace OrderManagement.Domain.Entities
             TotalAmount = 0m;
         }
 
-        public void AddOrderItem()
+        public void AddOrderItem(Guid productId, int qty, decimal unitPrice)
         {
-            
+            var orderItem = new OrderItem(productId, qty, unitPrice);
+            OrderItems.Add(orderItem);
+
+            TotalAmount = CalculateTotal();
+
+            Status = $"Position added. Total positions: {OrderItems.Count}";
+        }
+
+        public bool DeleteOrderItem(Guid orderItemId)
+        {
+            var orderItem = OrderItems.FirstOrDefault(oi => oi.Id == orderItemId);
+            if(orderItem != null)
+            {
+                OrderItems.Remove(orderItem);
+                TotalAmount = CalculateTotal();
+
+                Status = $"Position removed. Total positions: {OrderItems.Count}";
+
+                return true;
+            }
+
+            return false;
         }
 
         public void ChangeAddress(ShippingAddress address)
