@@ -51,6 +51,9 @@ namespace OrderManagement.Infrastructure.Data
             {
                 x.HasKey(oi => oi.Id);
 
+                x.Property(oi => oi.Id)
+                .ValueGeneratedOnAdd();
+
                 x.Property(oi => oi.ProductId)
                 .IsRequired();
 

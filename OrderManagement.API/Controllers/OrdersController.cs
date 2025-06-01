@@ -17,21 +17,54 @@ namespace OrderManagement.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
+            Guid orderId = Guid.Empty;
+
             try
             {
-                await _orderService.CreateOrderAsync(request.CustomerId, request.ShippingAddress);
+                orderId = await _orderService.CreateOrderAsync(request.CustomerId, request.ShippingAddress);
             }
             catch (Exception ex)
             {
-                return BadRequest(new {error = ex.Message});
+                return BadRequest(new
+                {
+                    StatusCode = "404",
+                    Errors = ex.Message
+                });
             }
 
             return Created($"/api/orders", new
             {
+                OrderId = orderId,
                 request.CustomerId,
                 request.ShippingAddress,
                 Date = DateTime.UtcNow
             });
+        }
+
+        [HttpDelete]
+        [Route("delete/{orderId}")]
+        public async Task<IActionResult> DeleteOrder([FromRoute] Guid orderId)
+        {
+            return await _orderService.DeleteOrderAsync(orderId)
+            ? NoContent()
+            : ValidationProblem(title: "Not found this orderId", modelStateDictionary: ModelState);
+        }
+
+        [HttpPut]
+        [Route("{orderId}/add-items")]
+        public async Task<IActionResult> AddOrderItem([FromRoute] Guid orderId, [FromBody] CreateOrderItemRequest request)
+        {
+            try
+            {
+                return await _orderService.AddItemToOrderAsync(orderId, request.ProductId, request.Quantity,
+                    request.UnitPrice)
+                    ? Ok()
+                    : ValidationProblem(title: "Not found this orderId", modelStateDictionary: ModelState);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

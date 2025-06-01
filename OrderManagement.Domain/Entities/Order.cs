@@ -1,6 +1,7 @@
 ﻿using OrderManagement.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +32,9 @@ namespace OrderManagement.Domain.Entities
 
         public Order(Guid customerId, ShippingAddress address, DateTime createdAt)
         {
+            if (customerId == Guid.Empty)
+                throw new ArgumentNullException("Customer ID must not be empty");
+
             Id = Guid.NewGuid();
             CustomerId = customerId;
             CreatedAt = createdAt;
@@ -45,7 +49,8 @@ namespace OrderManagement.Domain.Entities
 
         public void AddOrderItem(Guid productId, int qty, decimal unitPrice)
         {
-            var orderItem = new OrderItem(productId, qty, unitPrice);
+            var orderItem = new OrderItem(this.Id, this, productId, qty, unitPrice);
+
             OrderItems.Add(orderItem);
 
             TotalAmount = CalculateTotal();

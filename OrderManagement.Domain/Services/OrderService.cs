@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace OrderManagement.Domain.Services
 {
@@ -17,12 +18,12 @@ namespace OrderManagement.Domain.Services
             _orderRepository = orderRepository;
         }
 
-        public async Task AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice)
+        public async Task<bool> AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice)
         {
-            throw new NotImplementedException();
+            return await _orderRepository.AddOrderItemAsync(orderId, productId, qty, unitPrice);
         }
 
-        public async Task ChangeAddressOrderAsync(Guid orderId, ShippingAddress address)
+        public async Task<bool> ChangeAddressOrderAsync(Guid orderId, ShippingAddress address)
         {
             throw new NotImplementedException();
         }
@@ -30,7 +31,7 @@ namespace OrderManagement.Domain.Services
         public async Task<Guid> CreateOrderAsync(Guid customerId, ShippingAddress address)
         {
             var newOrder = new Order(customerId, address, DateTime.Now);
-            await _orderRepository.AddAsync(newOrder);
+            await _orderRepository.AddOrderAsync(newOrder);
             return newOrder.Id;
         }
 
@@ -41,7 +42,7 @@ namespace OrderManagement.Domain.Services
 
         public async Task<bool> DeleteOrderAsync(Guid orderId)
         {
-            return await _orderRepository.DeleteByIdAsync(orderId);
+            return await _orderRepository.DeleteOrderByIdAsync(orderId);
         }
     }
 }

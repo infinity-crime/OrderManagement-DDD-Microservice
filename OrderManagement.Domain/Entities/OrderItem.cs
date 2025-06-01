@@ -19,8 +19,16 @@ namespace OrderManagement.Domain.Entities
 
         private OrderItem() { }
 
-        public OrderItem(Guid productId, int qty, decimal unitPrice)
+        public OrderItem(Guid orderId, Order order, Guid productId, int qty, decimal unitPrice)
         {
+            if (orderId == Guid.Empty)
+                throw new ArgumentNullException("Order ID must not be empty",
+                    nameof(orderId));
+
+            if (productId == Guid.Empty)
+                throw new ArgumentNullException("Product ID must not be empty", 
+                    nameof(productId));
+
             if (qty <= 0) 
                 throw new ArgumentOutOfRangeException("The quantity of goods cannot be less than zero", 
                     nameof(qty));
@@ -29,10 +37,13 @@ namespace OrderManagement.Domain.Entities
                 throw new ArgumentOutOfRangeException("The price of a product cannot be less than zero", 
                     nameof(unitPrice));
 
-            Id = Guid.NewGuid();
+            
+            OrderId = orderId;
             ProductId = productId;
             Quantity = qty;
             UnitPrice = unitPrice;
+
+            Order = order;
         }
     }
 }

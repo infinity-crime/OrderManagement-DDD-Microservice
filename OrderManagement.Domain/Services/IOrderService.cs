@@ -11,8 +11,8 @@ namespace OrderManagement.Domain.Services
     {
         Task<Guid> CreateOrderAsync(Guid customerId, ShippingAddress address);
         Task<bool> DeleteOrderAsync(Guid orderId);
-        Task AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
+        Task<bool> AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
         Task<bool> DeleteItemToOrderAsync(Guid orderId, Guid itemId);
-        Task ChangeAddressOrderAsync(Guid orderId, ShippingAddress address);
+        Task<bool> ChangeAddressOrderAsync(Guid orderId, ShippingAddress address);
     }
 }

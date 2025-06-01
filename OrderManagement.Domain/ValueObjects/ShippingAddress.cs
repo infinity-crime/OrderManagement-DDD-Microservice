@@ -15,7 +15,7 @@ namespace OrderManagement.Domain.ValueObjects
 
         public ShippingAddress(string country, string city, string street, int postcode)
         {
-            if (string.IsNullOrEmpty(country) && string.IsNullOrEmpty(city) && string.IsNullOrEmpty(street))
+            if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(city) || string.IsNullOrEmpty(street))
                 throw new ArgumentNullException("Address fields cannot be null");
 
             if (postcode <= 0)

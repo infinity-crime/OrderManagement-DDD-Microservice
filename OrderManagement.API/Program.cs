@@ -11,8 +11,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<OrderManagementDbContext>(options =>
 {
-    options.UseSqlServer(connectionString,
-        sqloptions => sqloptions.MigrationsAssembly("OrderManagement.Infrastructure"));
+    options
+    .UseSqlServer(connectionString,
+        sqloptions => sqloptions.MigrationsAssembly("OrderManagement.Infrastructure"))
+    .EnableSensitiveDataLogging()
+    .LogTo(Console.WriteLine);
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -28,14 +31,11 @@ if(app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage();
 }
 
 app.UseExceptionHandler("/Errors");
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
