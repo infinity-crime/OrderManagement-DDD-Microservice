@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OrderManagement.API.Models;
+using OrderManagement.Domain.Exceptions;
 using OrderManagement.Domain.Services;
 
 namespace OrderManagement.API.Controllers
@@ -17,28 +18,17 @@ namespace OrderManagement.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
-            Guid orderId = Guid.Empty;
+            Guid orderId = await _orderService.CreateOrderAsync(request.CustomerId, request.ShippingAddress);
 
-            try
-            {
-                orderId = await _orderService.CreateOrderAsync(request.CustomerId, request.ShippingAddress);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
+            return orderId != Guid.Empty
+                ? Created($"/api/orders", new
                 {
-                    StatusCode = "404",
-                    Errors = ex.Message
-                });
-            }
-
-            return Created($"/api/orders", new
-            {
-                OrderId = orderId,
-                request.CustomerId,
-                request.ShippingAddress,
-                Date = DateTime.UtcNow
-            });
+                    OrderId = orderId,
+                    request.CustomerId,
+                    request.ShippingAddress,
+                    Date = DateTime.UtcNow
+                })
+                : BadRequest();
         }
 
         [HttpDelete]
@@ -56,14 +46,23 @@ namespace OrderManagement.API.Controllers
         {
             try
             {
-                return await _orderService.AddItemToOrderAsync(orderId, request.ProductId, request.Quantity,
-                    request.UnitPrice)
-                    ? Ok()
-                    : ValidationProblem(title: "Not found this orderId", modelStateDictionary: ModelState);
+                await _orderService.AddItemToOrderAsync(orderId, request.ProductId, request.Quantity, request.UnitPrice);
+                return Ok();
             }
-            catch (Exception ex)
+            catch(OrderIdNotFoundException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(new
+                {
+                    Error = ex.Message,
+                    Value = ex.Value
+                });
+            }
+            catch(DomainException ex)
+            {
+                return BadRequest(new
+                {
+                    Error = ex.Message,
+                });
             }
         }
     }

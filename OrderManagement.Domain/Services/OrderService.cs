@@ -19,17 +19,17 @@ namespace OrderManagement.Domain.Services
             _orderRepository = orderRepository;
         }
 
-        public async Task<bool> AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice)
+        public async Task AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice)
         {
-            try
-            {
-                var item = new OrderItem(orderId, productId, qty, unitPrice);
-                return await _orderRepository.AddOrderItemAsync(item);
-            }
-            catch(DomainException)
-            {
-                return false;
-            }
+            var order = await _orderRepository.GetOrderAsync(orderId);
+            if (order == null)
+                throw new OrderIdNotFoundException("Order with received Id not found!", orderId);
+
+            var orderItem = new OrderItem(orderId, productId, qty, unitPrice);
+
+            order.AddOrderItem(orderItem);
+
+            await _orderRepository.SaveChangesAsync();
         }
 
         public async Task<bool> ChangeAddressOrderAsync(Guid orderId, ShippingAddress address)
@@ -39,9 +39,16 @@ namespace OrderManagement.Domain.Services
 
         public async Task<Guid> CreateOrderAsync(Guid customerId, ShippingAddress address)
         {
-            var newOrder = new Order(customerId, address, DateTime.Now);
-            await _orderRepository.AddOrderAsync(newOrder);
-            return newOrder.Id;
+            try
+            {
+                var newOrder = new Order(customerId, address, DateTime.Now);
+                await _orderRepository.AddOrderAsync(newOrder);
+                return newOrder.Id;
+            }
+            catch(DomainException)
+            {
+                return Guid.Empty;
+            }
         }
 
         public async Task<bool> DeleteItemToOrderAsync(Guid orderId, Guid itemId)

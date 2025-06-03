@@ -2,6 +2,7 @@
 using OrderManagement.Domain.Entities;
 using OrderManagement.Domain.Repositories;
 using OrderManagement.Infrastructure.Data;
+using OrderManagement.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,58 +21,35 @@ namespace OrderManagement.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task AddOrderAsync(Order order)
+        public async Task<Guid> AddOrderAsync(Order order)
         {
             await _dbContext.Orders.AddAsync(order);
             await _dbContext.SaveChangesAsync();
-        }
 
-        public async Task<bool> AddOrderItemAsync(OrderItem orderItem)
-        {
-            // unload all OrderItems so that the recalculation of the order amount is correct in any case
-            var order = await _dbContext.Orders
-                .Include(o => o.OrderItems) 
-                .FirstOrDefaultAsync(o => o.Id == orderItem.OrderId);
-
-            if(order != null)
-            {
-                order.AddOrderItem(orderItem);
-                await _dbContext.SaveChangesAsync();
-                return true;
-            }
-
-            return false;
+            return order.Id;
         }
 
         public async Task<bool> DeleteOrderAsync(Guid orderId)
         {
             var order = await _dbContext.Orders.FindAsync(orderId);
-            if(order != null)
-            {
-                _dbContext.Orders.Remove(order);
-                await _dbContext.SaveChangesAsync();
-                return true;
-            }
+            if (order is null)
+                return false;
 
-            return false;
-        }
-
-        public async Task<bool> DeleteOrderItemAsync(Guid itemId)
-        {
-            var orderItem = await _dbContext.OrderItems.FindAsync(itemId);
-            if(orderItem != null)
-            {
-                _dbContext.OrderItems.Remove(orderItem);
-                await _dbContext.SaveChangesAsync();
-                return true;
-            }
-
-            return false;
+            _dbContext.Orders.Remove(order);
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
 
         public async Task<Order?> GetOrderAsync(Guid orderId)
         {
-            return await _dbContext.Orders.FindAsync(orderId);
+            return await _dbContext.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

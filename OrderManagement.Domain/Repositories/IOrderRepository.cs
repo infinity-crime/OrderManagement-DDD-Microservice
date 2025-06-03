@@ -9,14 +9,23 @@ namespace OrderManagement.Domain.Repositories
 {
     public interface IOrderRepository
     {
-        Task AddOrderAsync(Order order);
+        /// <summary>
+        /// Adds a new order.
+        /// Returns the Id of the created order.
+        /// </summary>
+        Task<Guid> AddOrderAsync(Order order);
 
-        Task<bool> AddOrderItemAsync(OrderItem orderItem);
-
-        Task<bool> DeleteOrderItemAsync(Guid itemId);
-
+        /// <summary>
+        /// Deletes an order with the specified orderId.
+        /// Returns true if an order was found and deleted, false if no order was found and deleted.
+        /// </summary>
         Task<bool> DeleteOrderAsync(Guid orderId);
 
+        /// <summary>
+        /// Returns the order by its orderId with OrderItems loaded, or null if not found.
+        /// </summary>
         Task<Order?> GetOrderAsync(Guid orderId);
+
+        Task SaveChangesAsync();
     }
 }

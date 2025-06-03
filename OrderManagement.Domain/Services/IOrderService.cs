@@ -13,7 +13,7 @@ namespace OrderManagement.Domain.Services
 
         Task<bool> DeleteOrderAsync(Guid orderId);
 
-        Task<bool> AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
+        Task AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
 
         Task<bool> DeleteItemToOrderAsync(Guid orderId, Guid itemId);
 

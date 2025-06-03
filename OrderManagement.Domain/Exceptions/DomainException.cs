@@ -9,7 +9,7 @@ namespace OrderManagement.Domain.Exceptions
     public class DomainException : Exception
     {
         /// <summary>
-        /// Base class for all domain logic exceptions
+        /// Base class for all domain logic (constructors) exceptions
         /// </summary>
         
         public DomainException() { }
