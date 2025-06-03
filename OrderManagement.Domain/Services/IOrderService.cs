@@ -10,9 +10,13 @@ namespace OrderManagement.Domain.Services
     public interface IOrderService
     {
         Task<Guid> CreateOrderAsync(Guid customerId, ShippingAddress address);
+
         Task<bool> DeleteOrderAsync(Guid orderId);
+
         Task<bool> AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
+
         Task<bool> DeleteItemToOrderAsync(Guid orderId, Guid itemId);
+
         Task<bool> ChangeAddressOrderAsync(Guid orderId, ShippingAddress address);
     }
 }

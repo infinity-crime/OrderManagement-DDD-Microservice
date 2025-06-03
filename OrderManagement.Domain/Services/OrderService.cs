@@ -42,7 +42,7 @@ namespace OrderManagement.Domain.Services
 
         public async Task<bool> DeleteOrderAsync(Guid orderId)
         {
-            return await _orderRepository.DeleteOrderByIdAsync(orderId);
+            return await _orderRepository.DeleteOrderAsync(orderId);
         }
     }
 }

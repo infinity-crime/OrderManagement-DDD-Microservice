@@ -10,9 +10,13 @@ namespace OrderManagement.Domain.Repositories
     public interface IOrderRepository
     {
         Task AddOrderAsync(Order order);
+
         Task<bool> AddOrderItemAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
-        Task<bool> DeleteOrderItemAsync(Guid orderId, Guid itemId);
-        Task<bool> DeleteOrderByIdAsync(Guid orderId);
-        Task<Order?> GetOrderByIdAsync(Guid orderId);
+
+        Task<bool> DeleteOrderItemAsync(Guid itemId);
+
+        Task<bool> DeleteOrderAsync(Guid orderId);
+
+        Task<Order?> GetOrderAsync(Guid orderId);
     }
 }

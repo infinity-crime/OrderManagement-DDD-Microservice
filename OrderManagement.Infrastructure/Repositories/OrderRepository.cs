@@ -38,7 +38,7 @@ namespace OrderManagement.Infrastructure.Repositories
             return false;
         }
 
-        public async Task<bool> DeleteOrderByIdAsync(Guid orderId)
+        public async Task<bool> DeleteOrderAsync(Guid orderId)
         {
             var order = await _dbContext.Orders.FindAsync(orderId);
             if(order != null)
@@ -51,12 +51,20 @@ namespace OrderManagement.Infrastructure.Repositories
             return false;
         }
 
-        public Task<bool> DeleteOrderItemAsync(Guid orderId, Guid itemId)
+        public async Task<bool> DeleteOrderItemAsync(Guid itemId)
         {
-            throw new NotImplementedException();
+            var orderItem = await _dbContext.OrderItems.FindAsync(itemId);
+            if(orderItem != null)
+            {
+                _dbContext.OrderItems.Remove(orderItem);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
         }
 
-        public async Task<Order?> GetOrderByIdAsync(Guid orderId)
+        public async Task<Order?> GetOrderAsync(Guid orderId)
         {
             return await _dbContext.Orders.FindAsync(orderId);
         }

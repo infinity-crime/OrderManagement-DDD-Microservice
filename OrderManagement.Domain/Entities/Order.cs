@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OrderManagement.Domain.Exceptions;
 
 namespace OrderManagement.Domain.Entities
 {
@@ -27,13 +28,13 @@ namespace OrderManagement.Domain.Entities
         // Computed property for VO immutability
         public ShippingAddress ShippingAddress => new ShippingAddress(Country, City, Street, Postcode);
 
-        // Private constructor that excludes creation of empty object in the database (for EF Core)
+        // Prevent the EF Core database from creating an empty entity
         private Order() { } 
 
         public Order(Guid customerId, ShippingAddress address, DateTime createdAt)
         {
             if (customerId == Guid.Empty)
-                throw new ArgumentNullException("Customer ID must not be empty");
+                throw new DomainException($"{nameof(customerId)} cannot be empty");
 
             Id = Guid.NewGuid();
             CustomerId = customerId;
