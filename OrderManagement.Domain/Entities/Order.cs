@@ -48,10 +48,8 @@ namespace OrderManagement.Domain.Entities
             TotalAmount = 0m;
         }
 
-        public void AddOrderItem(Guid productId, int qty, decimal unitPrice)
+        public void AddOrderItem(OrderItem orderItem)
         {
-            var orderItem = new OrderItem(this.Id, this, productId, qty, unitPrice);
-
             OrderItems.Add(orderItem);
 
             TotalAmount = CalculateTotal();

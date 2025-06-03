@@ -50,7 +50,7 @@ namespace OrderManagement.API.Controllers
             : ValidationProblem(title: "Not found this orderId", modelStateDictionary: ModelState);
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("{orderId}/add-items")]
         public async Task<IActionResult> AddOrderItem([FromRoute] Guid orderId, [FromBody] CreateOrderItemRequest request)
         {

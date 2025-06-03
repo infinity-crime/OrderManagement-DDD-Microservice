@@ -1,6 +1,7 @@
 ﻿using OrderManagement.Domain.Entities;
 using OrderManagement.Domain.ValueObjects;
 using OrderManagement.Domain.Repositories;
+using OrderManagement.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,15 @@ namespace OrderManagement.Domain.Services
 
         public async Task<bool> AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice)
         {
-            return await _orderRepository.AddOrderItemAsync(orderId, productId, qty, unitPrice);
+            try
+            {
+                var item = new OrderItem(orderId, productId, qty, unitPrice);
+                return await _orderRepository.AddOrderItemAsync(item);
+            }
+            catch(DomainException)
+            {
+                return false;
+            }
         }
 
         public async Task<bool> ChangeAddressOrderAsync(Guid orderId, ShippingAddress address)

@@ -28,7 +28,7 @@ namespace OrderManagement.Domain.Entities
          * (UPDATE will occur instead of INSERT). That's why there is no explicit assignment of the Id 
          * field in the OrderItem constructor, EF Core will do it for us 
          */
-        public OrderItem(Guid orderId, Order order, Guid productId, int qty, decimal unitPrice)
+        public OrderItem(Guid orderId, Guid productId, int qty, decimal unitPrice)
         {
             if (orderId == Guid.Empty)
                 throw new DomainException($"{nameof(orderId)} cannot be empty");
@@ -44,9 +44,8 @@ namespace OrderManagement.Domain.Entities
             Quantity = qty;
             UnitPrice = unitPrice;
 
-            // Navigation fields
+            // Navigation field
             OrderId = orderId;
-            Order = order;
         }
     }
 }

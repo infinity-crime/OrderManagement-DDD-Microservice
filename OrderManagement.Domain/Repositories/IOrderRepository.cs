@@ -11,7 +11,7 @@ namespace OrderManagement.Domain.Repositories
     {
         Task AddOrderAsync(Order order);
 
-        Task<bool> AddOrderItemAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
+        Task<bool> AddOrderItemAsync(OrderItem orderItem);
 
         Task<bool> DeleteOrderItemAsync(Guid itemId);
 

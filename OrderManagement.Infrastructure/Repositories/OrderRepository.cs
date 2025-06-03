@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using OrderManagement.Domain.Entities;
+using OrderManagement.Domain.Repositories;
+using OrderManagement.Infrastructure.Data;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using OrderManagement.Domain.Entities;
-using OrderManagement.Domain.Repositories;
-using OrderManagement.Infrastructure.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OrderManagement.Infrastructure.Repositories
 {
@@ -25,12 +26,16 @@ namespace OrderManagement.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<bool> AddOrderItemAsync(Guid orderId, Guid productId, int qty, decimal unitPrice)
+        public async Task<bool> AddOrderItemAsync(OrderItem orderItem)
         {
-            var order = await _dbContext.Orders.FindAsync(orderId);
+            // unload all OrderItems so that the recalculation of the order amount is correct in any case
+            var order = await _dbContext.Orders
+                .Include(o => o.OrderItems) 
+                .FirstOrDefaultAsync(o => o.Id == orderItem.OrderId);
+
             if(order != null)
             {
-                order.AddOrderItem(productId, qty, unitPrice);
+                order.AddOrderItem(orderItem);
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
