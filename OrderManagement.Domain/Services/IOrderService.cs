@@ -1,4 +1,6 @@
-﻿using OrderManagement.Domain.ValueObjects;
+﻿using OrderManagement.Domain.Entities;
+using OrderManagement.Domain.Exceptions;
+using OrderManagement.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +11,39 @@ namespace OrderManagement.Domain.Services
 {
     public interface IOrderService
     {
+        /// <summary>
+        /// Creating a new order in the database.
+        /// Returns a new order Id or an exception of type DomainException if the input 
+        /// data violates the business logic.
+        /// </summary>
         Task<Guid> CreateOrderAsync(Guid customerId, ShippingAddress address);
 
-        Task<bool> DeleteOrderAsync(Guid orderId);
+        /// <summary>
+        /// Deletes the order from the database.
+        /// In case of failure, throws an exception of type OrderIdNotFoundException 
+        /// (when trying to delete a non-existent Id)
+        /// </summary>
+        Task DeleteOrderAsync(Guid orderId);
 
-        Task AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
+        /// <summary>
+        /// Adds a new OrderItem to the selected Order. 
+        /// Returns the Guid Id of the added OrderItem. 
+        /// If the specified OrderId does not exist, an exception of type OrderIdNotFoundException is thrown, 
+        /// if an error in the parameters for the OrderItem - DomainException is thrown.
+        /// </summary> 
+        Task<Guid> AddItemToOrderAsync(Guid orderId, Guid productId, int qty, decimal unitPrice);
 
-        Task<bool> DeleteItemToOrderAsync(Guid orderId, Guid itemId);
+        /// <summary>
+        /// Removes an OrderItem from the selected Order.
+        /// If the specified OrderId does not exist, an exception of type OrderIdNotFoundException is thrown, 
+        /// if a non-existent Id is specified for the OrderItem - OrderItemIdNotFoundException is thrown.
+        /// </summary>
+        Task DeleteItemToOrderAsync(Guid orderId, Guid itemId);
 
-        Task<bool> ChangeAddressOrderAsync(Guid orderId, ShippingAddress address);
+        /// <summary>
+        /// Changes the address on the order. 
+        /// If the order is not found - generates an OrderIdNotFoundException exception.
+        /// </summary>
+        Task ChangeAddressOrderAsync(Guid orderId, ShippingAddress address);
     }
 }

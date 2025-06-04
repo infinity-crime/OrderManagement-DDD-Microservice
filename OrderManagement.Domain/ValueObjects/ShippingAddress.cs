@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OrderManagement.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,10 +17,10 @@ namespace OrderManagement.Domain.ValueObjects
         public ShippingAddress(string country, string city, string street, int postcode)
         {
             if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(city) || string.IsNullOrEmpty(street))
-                throw new ArgumentNullException("Address fields cannot be null");
+                throw new DomainException("Address fields cannot be null");
 
             if (postcode <= 0)
-                throw new ArgumentOutOfRangeException("Postcode must be positive and greater than zero");
+                throw new DomainException("Postcode must be positive and greater than zero");
 
             Country = country;
             City = city;

@@ -2,6 +2,7 @@
 using OrderManagement.API.Models;
 using OrderManagement.Domain.Exceptions;
 using OrderManagement.Domain.Services;
+using OrderManagement.Domain.ValueObjects;
 
 namespace OrderManagement.API.Controllers
 {
@@ -16,40 +17,37 @@ namespace OrderManagement.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+        [Route("create/order/{customerId}")]
+        public async Task<IActionResult> CreateOrder([FromRoute] Guid customerId,
+            [FromBody] CreateAddressRequest request)
         {
-            Guid orderId = await _orderService.CreateOrderAsync(request.CustomerId, request.ShippingAddress);
-
-            return orderId != Guid.Empty
-                ? Created($"/api/orders", new
+            try
+            {
+                var address = new ShippingAddress(request.Country, request.City, request.Street, request.PostCode);
+                var orderId = await _orderService.CreateOrderAsync(customerId, address);
+                return Created($"/api/Orders/create/order/{customerId}", orderId);
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(new
                 {
-                    OrderId = orderId,
-                    request.CustomerId,
-                    request.ShippingAddress,
-                    Date = DateTime.UtcNow
-                })
-                : BadRequest();
-        }
-
-        [HttpDelete]
-        [Route("delete/{orderId}")]
-        public async Task<IActionResult> DeleteOrder([FromRoute] Guid orderId)
-        {
-            return await _orderService.DeleteOrderAsync(orderId)
-            ? NoContent()
-            : ValidationProblem(title: "Not found this orderId", modelStateDictionary: ModelState);
+                    Error = ex.Message
+                });
+            }
         }
 
         [HttpPost]
-        [Route("{orderId}/add-items")]
+        [Route("{orderId}/add-item")]
         public async Task<IActionResult> AddOrderItem([FromRoute] Guid orderId, [FromBody] CreateOrderItemRequest request)
         {
             try
             {
-                await _orderService.AddItemToOrderAsync(orderId, request.ProductId, request.Quantity, request.UnitPrice);
-                return Ok();
+                var orderItemId = await _orderService.AddItemToOrderAsync(orderId, request.ProductId,
+                    request.Quantity, request.UnitPrice);
+
+                return Created($"/api/Orders/{orderId}/add-item", orderItemId);
             }
-            catch(OrderIdNotFoundException ex)
+            catch (OrderIdNotFoundException ex)
             {
                 return NotFound(new
                 {
@@ -57,11 +55,77 @@ namespace OrderManagement.API.Controllers
                     Value = ex.Value
                 });
             }
-            catch(DomainException ex)
+            catch (DomainException ex)
             {
                 return BadRequest(new
                 {
                     Error = ex.Message,
+                });
+            }
+        }
+
+        [HttpPut]
+        [Route("{orderId}/update-address")]
+        public async Task<IActionResult> UpdateOrderAddress([FromRoute] Guid orderId, 
+            [FromBody] CreateAddressRequest request)
+        {
+            try
+            {
+                var address = new ShippingAddress(request.Country, request.City, request.Street, request.PostCode);
+                await _orderService.ChangeAddressOrderAsync(orderId, address);
+                return Ok(address);
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(new
+                {
+                    Error = ex.Message
+                });
+            }
+            catch (OrderIdNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    Error = ex.Message,
+                    Value = ex.Value
+                });
+            }
+        }
+
+        [HttpDelete]
+        [Route("delete/{orderId}")]
+        public async Task<IActionResult> DeleteOrder([FromRoute] Guid orderId)
+        {
+            try
+            {
+                await _orderService.DeleteOrderAsync(orderId);
+                return NoContent();
+            }
+            catch (OrderIdNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    Error = ex.Message,
+                    ex.Value
+                });
+            }
+        }
+
+        [HttpDelete]
+        [Route("{orderId}/delete-item/{itemId}")]
+        public async Task<IActionResult> DeleteOrderItem([FromRoute] Guid orderId, [FromRoute] Guid itemId)
+        {
+            try
+            {
+                await _orderService.DeleteItemToOrderAsync(orderId, itemId);
+                return NoContent();
+            }
+            catch (OrderIdNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    Error = ex.Message,
+                    ex.Value
                 });
             }
         }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OrderManagement.API.Common.Extensions;
 using OrderManagement.Domain.Repositories;
 using OrderManagement.Domain.Services;
 using OrderManagement.Infrastructure.Data;
@@ -21,6 +22,8 @@ builder.Services.AddDbContext<OrderManagementDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+
+builder.Services.ConfigureBehaviorOptions();
 
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
