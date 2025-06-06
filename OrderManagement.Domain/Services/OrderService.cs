@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Collections;
 
 namespace OrderManagement.Domain.Services
 {
@@ -17,6 +18,32 @@ namespace OrderManagement.Domain.Services
         public OrderService(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
+        }
+
+        public async Task<ICollection> GetAllCustomerOrdersAsync(Guid customerId)
+        {
+            return await _orderRepository.GetCustomerOrdersAsync(customerId);
+        }
+
+        public async Task<IEnumerable<object>> GetAllOrderItemsAsync(Guid orderId)
+        {
+            var order = await _orderRepository
+                .GetOrderAsync(orderId, true);
+            if (order == null)
+                throw new OrderIdNotFoundException("Order with received Id not found!", orderId);
+
+            var orderItems = order.OrderItems
+                .Select(o => new 
+                {
+                    o.Id,
+                    o.OrderId,
+                    o.ProductId,
+                    o.Quantity,
+                    o.UnitPrice
+                })
+                .ToList();
+
+            return orderItems;
         }
 
         public async Task<Guid> CreateOrderAsync(Guid customerId, ShippingAddress address)

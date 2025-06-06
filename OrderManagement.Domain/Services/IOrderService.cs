@@ -2,6 +2,7 @@
 using OrderManagement.Domain.Exceptions;
 using OrderManagement.Domain.ValueObjects;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,17 @@ namespace OrderManagement.Domain.Services
     public interface IOrderService
     {
         /// <summary>
+        /// Allows you to get a list of all orders, including OrderItems at the customer. 
+        /// </summary>
+        Task<ICollection> GetAllCustomerOrdersAsync(Guid customerId);
+
+        /// <summary>
+        /// Returns a list of all OrderItems at a single Order. 
+        /// If no OrderId is found, an exception of type OrderIdNotFoundException is generated.
+        /// </summary>
+        Task<IEnumerable<object>> GetAllOrderItemsAsync(Guid orderId);
+
+        /// <summary>
         /// Creating a new order in the database.
         /// Returns a new order Id or an exception of type DomainException if the input 
         /// data violates the business logic.
@@ -21,7 +33,7 @@ namespace OrderManagement.Domain.Services
         /// <summary>
         /// Deletes the order from the database.
         /// In case of failure, throws an exception of type OrderIdNotFoundException 
-        /// (when trying to delete a non-existent Id)
+        /// (when trying to delete a non-existent Id).
         /// </summary>
         Task DeleteOrderAsync(Guid orderId);
 

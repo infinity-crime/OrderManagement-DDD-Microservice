@@ -63,9 +63,13 @@ namespace OrderManagement.Domain.Entities
             if(orderItem != null)
             {
                 OrderItems.Remove(orderItem);
+
                 TotalAmount = CalculateTotal();
 
-                Status = $"Position removed. Total positions: {OrderItems.Count}";
+                if (OrderItems.Count < 2)
+                    Status = "Created";
+                else
+                    Status = $"Position removed. Total positions: {OrderItems.Count}";
 
                 return true;
             }

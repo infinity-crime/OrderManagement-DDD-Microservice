@@ -16,6 +16,39 @@ namespace OrderManagement.API.Controllers
             _orderService = orderService;
         }
 
+        [HttpGet]
+        [Route("{customerId}/all-orders")]
+        public async Task<IActionResult> GetAllCustomerOrders([FromRoute] Guid customerId)
+        {
+            var orders = await _orderService.GetAllCustomerOrdersAsync(customerId);
+            return orders.Count > 0
+                ? Ok(orders)
+                : NotFound(new
+                {
+                    Error = "Customer's Id is incorrect",
+                    Id = customerId
+                });
+        }
+
+        [HttpGet]
+        [Route("{orderId}/all-items")]
+        public async Task<IActionResult> GetAllOrderItems([FromRoute] Guid orderId)
+        {
+            try
+            {
+                var orderItems = await _orderService.GetAllOrderItemsAsync(orderId);
+                return Ok(orderItems);
+            }
+            catch (OrderIdNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    Error = ex.Message,
+                    Value = ex.Value
+                });
+            }
+        }
+
         [HttpPost]
         [Route("create/order/{customerId}")]
         public async Task<IActionResult> CreateOrder([FromRoute] Guid customerId,

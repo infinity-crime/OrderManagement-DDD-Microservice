@@ -14,9 +14,7 @@ builder.Services.AddDbContext<OrderManagementDbContext>(options =>
 {
     options
     .UseSqlServer(connectionString,
-        sqloptions => sqloptions.MigrationsAssembly("OrderManagement.Infrastructure"))
-    .EnableSensitiveDataLogging()
-    .LogTo(Console.WriteLine);
+        sqloptions => sqloptions.MigrationsAssembly("OrderManagement.Infrastructure"));
 });
 
 builder.Services.AddEndpointsApiExplorer();
