@@ -22,6 +22,9 @@ namespace OrderManagement.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
+        /* In all cases, we need to retrofit nested entities into the Order class. 
+         * But there are cases when we just output a list, and there are cases when 
+         * we make changes. That's why there is a second argument responsible for tracking */
         public async Task<Order?> GetOrderAsync(Guid orderId, bool asNoTracking = false)
         {
             return asNoTracking switch
@@ -50,6 +53,7 @@ namespace OrderManagement.Infrastructure.Repositories
                     o.TotalAmount,
                     o.ShippingAddress,
 
+                    // Without select, there will be an infinite recursion on the Order property of OrderItem
                     OrderItems = o.OrderItems.Select(oi => new
                     {
                         oi.Id,
@@ -71,6 +75,10 @@ namespace OrderManagement.Infrastructure.Repositories
             return order.Id;
         }
 
+        /* ExecuteDeleteAsync() returns how many rows were deleted from the database. 
+         * In case when no data is found, the method will return 0 deleted rows. 
+         * Thus, we do not make additional checks and only 1 query to the database 
+         * is made for deletion. */
         public async Task<bool> DeleteOrderAsync(Guid orderId)
         {
             var rowsAffected = await _dbContext.Orders
@@ -80,6 +88,10 @@ namespace OrderManagement.Infrastructure.Repositories
             return rowsAffected > 0;
         }
 
+        /* In the service, when manipulating data, in particular OrderItem, 
+         * we do not have direct access to the database context. 
+         * That's why we need a double of SaveChangesAsync() function, 
+         * which will be available to the service. */
         public async Task SaveChangesAsync()
         {
             await _dbContext.SaveChangesAsync();

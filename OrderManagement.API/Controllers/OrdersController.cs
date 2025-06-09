@@ -21,6 +21,7 @@ namespace OrderManagement.API.Controllers
         public async Task<IActionResult> GetAllCustomerOrders([FromRoute] Guid customerId)
         {
             var orders = await _orderService.GetAllCustomerOrdersAsync(customerId);
+
             return orders.Count > 0
                 ? Ok(orders)
                 : NotFound(new
@@ -37,6 +38,7 @@ namespace OrderManagement.API.Controllers
             try
             {
                 var orderItems = await _orderService.GetAllOrderItemsAsync(orderId);
+
                 return Ok(orderItems);
             }
             catch (OrderIdNotFoundException ex)
@@ -50,14 +52,16 @@ namespace OrderManagement.API.Controllers
         }
 
         [HttpPost]
-        [Route("create/order/{customerId}")]
+        [Route("order/{customerId}")]
         public async Task<IActionResult> CreateOrder([FromRoute] Guid customerId,
             [FromBody] CreateAddressRequest request)
         {
             try
             {
                 var address = new ShippingAddress(request.Country, request.City, request.Street, request.PostCode);
+
                 var orderId = await _orderService.CreateOrderAsync(customerId, address);
+
                 return Created($"/api/Orders/create/order/{customerId}", orderId);
             }
             catch (DomainException ex)
@@ -70,7 +74,7 @@ namespace OrderManagement.API.Controllers
         }
 
         [HttpPost]
-        [Route("{orderId}/add-item")]
+        [Route("{orderId}/item")]
         public async Task<IActionResult> AddOrderItem([FromRoute] Guid orderId, [FromBody] CreateOrderItemRequest request)
         {
             try
@@ -98,14 +102,16 @@ namespace OrderManagement.API.Controllers
         }
 
         [HttpPut]
-        [Route("{orderId}/update-address")]
+        [Route("{orderId}/address")]
         public async Task<IActionResult> UpdateOrderAddress([FromRoute] Guid orderId, 
             [FromBody] CreateAddressRequest request)
         {
             try
             {
                 var address = new ShippingAddress(request.Country, request.City, request.Street, request.PostCode);
+
                 await _orderService.ChangeAddressOrderAsync(orderId, address);
+
                 return Ok(address);
             }
             catch (DomainException ex)
@@ -126,12 +132,13 @@ namespace OrderManagement.API.Controllers
         }
 
         [HttpDelete]
-        [Route("delete/{orderId}")]
+        [Route("{orderId}")]
         public async Task<IActionResult> DeleteOrder([FromRoute] Guid orderId)
         {
             try
             {
                 await _orderService.DeleteOrderAsync(orderId);
+
                 return NoContent();
             }
             catch (OrderIdNotFoundException ex)
@@ -145,12 +152,13 @@ namespace OrderManagement.API.Controllers
         }
 
         [HttpDelete]
-        [Route("{orderId}/delete-item/{itemId}")]
+        [Route("{orderId}/item/{itemId}")]
         public async Task<IActionResult> DeleteOrderItem([FromRoute] Guid orderId, [FromRoute] Guid itemId)
         {
             try
             {
                 await _orderService.DeleteItemToOrderAsync(orderId, itemId);
+
                 return NoContent();
             }
             catch (OrderIdNotFoundException ex)

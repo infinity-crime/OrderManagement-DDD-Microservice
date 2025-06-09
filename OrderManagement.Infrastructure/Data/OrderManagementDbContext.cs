@@ -15,6 +15,9 @@ namespace OrderManagement.Infrastructure.Data
 
         public OrderManagementDbContext(DbContextOptions<OrderManagementDbContext> options) : base(options) { }
 
+        /* Instead of clogging up the entity in the Domain layer 
+         * with attributes, it was decided to use the Fluent API 
+         * and describe all the necessary rules for entities here */
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Order>(x =>
