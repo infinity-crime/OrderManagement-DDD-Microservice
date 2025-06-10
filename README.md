@@ -68,3 +68,19 @@ What is this even done for? As you can see, most instructions in controller meth
 | `DELETE` | `/api/Orders/{orderId}`     | Deleting an order and then deleting all OrderItems related to it (cascading deletion) |
 | `DELETE` | `/api/Orders/{orderId}/item/{itemId}`     | Deleting an OrderItem from an existing order |
 
+## 🚀 Getting Started
+```bash
+git clone https://github.com/infinity-crime/OrderManagement-DDD-WebAPI.git
+cd OrderManagement-DDD-WebAPI
+dotnet restore
+dotnet run
+```
+**Before launching a project, make sure that the project you are launching is on OrderManagement.API in the solution!**
+Also, connect the usersecrets service and add the following to Secret.json:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=NAME;Trusted_Connection=True;"
+  }
+}
+```
